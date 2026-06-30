@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 ROWS = 30
 COLS = 30
@@ -20,14 +21,30 @@ class PathfinderApp:
 
         self.create_toolbar()
 
+        body = tk.Frame(self.root)
+        body.pack()
+
         self.canvas = tk.Canvas(
-            self.root,
+            body,
             width=COLS * CELL_SIZE,
             height=ROWS * CELL_SIZE,
             bg="white"
         )
 
-        self.canvas.pack(pady=10)
+        self.canvas.pack(side=tk.LEFT)
+
+        self.info = tk.Frame(body)
+        self.info.pack(side=tk.LEFT, padx=15, anchor="n")
+
+        tk.Label(self.info, text="Статистика", font=("Arial", 12, "bold")).pack()
+
+        self.status = tk.Label(
+            self.info,
+            text="Алгоритм не выбран",
+            justify="left"
+        )
+
+        self.status.pack(anchor="w", pady=10)
 
         self.canvas.bind("<Button-1>", self.left_click)
 
@@ -38,33 +55,40 @@ class PathfinderApp:
         frame = tk.Frame(self.root)
         frame.pack(pady=10)
 
-        tk.Button(
-            frame,
-            text="Стены",
-            width=12,
-            command=lambda: self.set_mode("wall")
-        ).pack(side=tk.LEFT, padx=5)
+        tk.Button(frame, text="Стены",
+                  command=lambda: self.set_mode("wall"),
+                  width=10).pack(side=tk.LEFT, padx=2)
 
-        tk.Button(
-            frame,
-            text="Старт",
-            width=12,
-            command=lambda: self.set_mode("start")
-        ).pack(side=tk.LEFT, padx=5)
+        tk.Button(frame, text="Старт",
+                  command=lambda: self.set_mode("start"),
+                  width=10).pack(side=tk.LEFT, padx=2)
 
-        tk.Button(
-            frame,
-            text="Финиш",
-            width=12,
-            command=lambda: self.set_mode("finish")
-        ).pack(side=tk.LEFT, padx=5)
+        tk.Button(frame, text="Финиш",
+                  command=lambda: self.set_mode("finish"),
+                  width=10).pack(side=tk.LEFT, padx=2)
 
-        tk.Button(
-            frame,
-            text="Очистить",
-            width=12,
-            command=self.clear_grid
-        ).pack(side=tk.LEFT, padx=5)
+        tk.Button(frame, text="Очистить",
+                  command=self.clear_grid,
+                  width=10).pack(side=tk.LEFT, padx=2)
+
+        tk.Button(frame, text="BFS",
+                  command=lambda: self.not_ready("BFS"),
+                  width=10).pack(side=tk.LEFT, padx=2)
+
+        tk.Button(frame, text="DFS",
+                  command=lambda: self.not_ready("DFS"),
+                  width=10).pack(side=tk.LEFT, padx=2)
+
+        tk.Button(frame, text="A*",
+                  command=lambda: self.not_ready("A*"),
+                  width=10).pack(side=tk.LEFT, padx=2)
+
+    def not_ready(self, name):
+
+        messagebox.showinfo(
+            "Информация",
+            f"Алгоритм {name} будет реализован на следующем этапе."
+        )
 
     def set_mode(self, mode):
         self.mode = mode
@@ -75,6 +99,8 @@ class PathfinderApp:
 
         self.start = None
         self.finish = None
+
+        self.status.config(text="Карта очищена")
 
         self.draw_grid()
 
@@ -90,7 +116,7 @@ class PathfinderApp:
 
             if self.grid[row][col] == 0:
                 self.grid[row][col] = 1
-            else:
+            elif self.grid[row][col] == 1:
                 self.grid[row][col] = 0
 
         elif self.mode == "start":
@@ -122,10 +148,9 @@ class PathfinderApp:
 
                 value = self.grid[row][col]
 
-                if value == 0:
-                    color = "white"
+                color = "white"
 
-                elif value == 1:
+                if value == 1:
                     color = "black"
 
                 elif value == 2:
@@ -134,12 +159,9 @@ class PathfinderApp:
                 elif value == 3:
                     color = "red"
 
-                else:
-                    color = "white"
-
                 x1 = col * CELL_SIZE
                 y1 = row * CELL_SIZE
-
+                
                 x2 = x1 + CELL_SIZE
                 y2 = y1 + CELL_SIZE
 
@@ -156,4 +178,4 @@ class PathfinderApp:
         self.root.mainloop()
 
 if __name__ == "__main__":
-    PathfinderApp().run()
+    PathfinderApp().run()        
