@@ -1,9 +1,20 @@
 import tkinter as tk
 from tkinter import messagebox
+from collections import deque
+import time
 
 ROWS = 30
 COLS = 30
 CELL_SIZE = 20
+
+COLORS = {
+    0: "white",
+    1: "black",
+    2: "green",
+    3: "red",
+    4: "#6ec6ff",      # посещённая вершина
+    5: "yellow"        # найденный путь
+}
 
 class PathfinderApp:
 
@@ -18,6 +29,10 @@ class PathfinderApp:
 
         self.start = None
         self.finish = None
+
+        self.visited = 0
+        self.path_length = 0
+        self.execution_time = 0
 
         self.create_toolbar()
 
@@ -40,11 +55,16 @@ class PathfinderApp:
 
         self.status = tk.Label(
             self.info,
-            text="Алгоритм не выбран",
-            justify="left"
+            justify="left",
+            anchor="nw",
+            width=24,
+            height=10,
+            font=("Consolas", 10)
         )
 
-        self.status.pack(anchor="w", pady=10)
+        self.status.pack(anchor="w")
+
+        self.update_status()
 
         self.canvas.bind("<Button-1>", self.left_click)
 
@@ -72,7 +92,7 @@ class PathfinderApp:
                   width=10).pack(side=tk.LEFT, padx=2)
 
         tk.Button(frame, text="BFS",
-                  command=lambda: self.not_ready("BFS"),
+                  command=self.run_bfs,
                   width=10).pack(side=tk.LEFT, padx=2)
 
         tk.Button(frame, text="DFS",
@@ -147,21 +167,11 @@ class PathfinderApp:
             for col in range(COLS):
 
                 value = self.grid[row][col]
-
-                color = "white"
-
-                if value == 1:
-                    color = "black"
-
-                elif value == 2:
-                    color = "green"
-
-                elif value == 3:
-                    color = "red"
+                color = COLORS[value]
 
                 x1 = col * CELL_SIZE
                 y1 = row * CELL_SIZE
-                
+
                 x2 = x1 + CELL_SIZE
                 y2 = y1 + CELL_SIZE
 
@@ -173,6 +183,42 @@ class PathfinderApp:
                     fill=color,
                     outline="gray"
                 )
+
+    def update_status(self):
+
+        text = (
+            f"Алгоритм: BFS\n\n"
+            f"Посещено: {self.visited}\n"
+            f"Длина пути: {self.path_length}\n"
+            f"Время: {self.execution_time:.6f} сек"
+        )
+
+        self.status.config(text=text)
+
+    def run_bfs(self):
+
+        if self.start is None or self.finish is None:
+            messagebox.showwarning(
+                "Ошибка",
+                "Необходимо установить старт и финиш."
+            )
+            return
+
+        start_time = time.perf_counter()
+
+        self.visited = 0
+        self.path_length = 0
+
+        end_time = time.perf_counter()
+
+        self.execution_time = end_time - start_time
+
+        self.update_status()
+
+        messagebox.showinfo(
+            "BFS",
+            "Алгоритм будет реализован в следующем коммите."
+        )
 
     def run(self):
         self.root.mainloop()
