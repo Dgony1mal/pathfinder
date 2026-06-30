@@ -1,6 +1,6 @@
 import tkinter as tk
 
-# Размер сетки
+# Размер поля
 ROWS = 30
 COLS = 30
 CELL_SIZE = 20
@@ -13,6 +13,11 @@ class PathfinderApp:
         width = COLS * CELL_SIZE
         height = ROWS * CELL_SIZE
 
+        # Карта:
+        # 0 - пустая клетка
+        # 1 - препятствие
+        self.grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]
+
         self.canvas = tk.Canvas(
             self.root,
             width=width,
@@ -22,13 +27,23 @@ class PathfinderApp:
 
         self.canvas.pack(padx=10, pady=10)
 
+        # Нажатие левой кнопкой мыши
+        self.canvas.bind("<Button-1>", self.left_click)
+
         self.draw_grid()
 
     def draw_grid(self):
-        """Рисование сетки"""
+        """Рисует всю карту."""
+
+        self.canvas.delete("all")
 
         for row in range(ROWS):
             for col in range(COLS):
+
+                if self.grid[row][col] == 1:
+                    color = "black"
+                else:
+                    color = "white"
 
                 x1 = col * CELL_SIZE
                 y1 = row * CELL_SIZE
@@ -41,8 +56,26 @@ class PathfinderApp:
                     y1,
                     x2,
                     y2,
-                    outline="lightgray"
+                    fill=color,
+                    outline="gray"
                 )
+
+    def left_click(self, event):
+        """Рисование препятствий."""
+
+        col = event.x // CELL_SIZE
+        row = event.y // CELL_SIZE
+
+        if row >= ROWS or col >= COLS:
+            return
+
+        # Переключение клетки
+        if self.grid[row][col] == 0:
+            self.grid[row][col] = 1
+        else:
+            self.grid[row][col] = 0
+
+        self.draw_grid()
 
     def run(self):
         self.root.mainloop()
