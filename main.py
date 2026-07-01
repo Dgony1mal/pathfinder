@@ -200,25 +200,96 @@ class PathfinderApp:
         if self.start is None or self.finish is None:
             messagebox.showwarning(
                 "Ошибка",
-                "Необходимо установить старт и финиш."
+                "Укажите старт и финиш."
             )
             return
 
         start_time = time.perf_counter()
 
-        self.visited = 0
-        self.path_length = 0
+        queue = deque([self.start])
+
+        parents = {}
+
+        visited = {self.start}
+
+        found = False
+
+        while queue:
+
+            current = queue.popleft()
+
+            if current == self.finish:
+                found = True
+                break
+
+            row, col = current
+
+            directions = [
+                (-1, 0),
+                (1, 0),
+                (0, -1),
+                (0, 1)
+            ]
+
+            for dr, dc in directions:
+
+                nr = row + dr
+                nc = col + dc
+
+                if not (0 <= nr < ROWS and 0 <= nc < COLS):
+                    continue
+
+                if self.grid[nr][nc] == 1:
+                    continue
+
+                neighbor = (nr, nc)
+
+                if neighbor in visited:
+                    continue
+
+                visited.add(neighbor)
+
+                parents[neighbor] = current
+
+                queue.append(neighbor)
 
         end_time = time.perf_counter()
 
         self.execution_time = end_time - start_time
 
+        self.visited = len(visited)
+
+        if found:
+            self.restore_path(parents)
+
+        else:
+            messagebox.showinfo(
+                "BFS",
+                "Путь не найден."
+            )
+
         self.update_status()
 
-        messagebox.showinfo(
-            "BFS",
-            "Алгоритм будет реализован в следующем коммите."
-        )
+    def restore_path(self, parents):
+
+        current = self.finish
+
+        length = 0
+
+        while current != self.start:
+
+            row, col = current
+
+            if self.grid[row][col] == 0:
+                self.grid[row][col] = 5
+
+            current = parents[current]
+
+            length += 1
+
+        self.path_length = length
+
+        self.draw_grid()    
 
     def run(self):
         self.root.mainloop()
