@@ -64,6 +64,20 @@ class PathfinderApp:
 
         self.status.pack(anchor="w")
 
+        tk.Label(
+            self.info,
+            text="Очередь BFS",
+            font=("Arial", 10, "bold")
+        ).pack(anchor="w", pady=(15, 5))
+
+        self.queue_box = tk.Listbox(
+            self.info,
+            width=20,
+            height=10
+        )
+
+        self.queue_box.pack(anchor="w")
+
         self.update_status()
 
         self.canvas.bind("<Button-1>", self.left_click)
@@ -229,6 +243,8 @@ class PathfinderApp:
 
             self.draw_grid()
 
+            self.update_queue(queue)
+
             self.root.update()
 
             self.root.after(20)
@@ -285,6 +301,8 @@ class PathfinderApp:
 
         self.update_status()
 
+        self.queue_box.delete(0, tk.END)
+
     def restore_path(self, parents):
 
         current = self.finish
@@ -304,7 +322,17 @@ class PathfinderApp:
 
         self.path_length = length
 
-        self.draw_grid()    
+        self.draw_grid()
+
+    def update_queue(self, queue):
+
+        self.queue_box.delete(0, tk.END)
+
+        for cell in list(queue)[:20]:
+            self.queue_box.insert(
+                tk.END,
+                str(cell)
+            )
 
     def run(self):
         self.root.mainloop()
