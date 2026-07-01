@@ -205,10 +205,11 @@ class PathfinderApp:
     def update_status(self):
 
         text = (
-            f"Алгоритм: BFS\n\n"
-            f"Посещено: {self.visited}\n"
-            f"Длина пути: {self.path_length}\n"
-            f"Время: {self.execution_time:.6f} сек"
+            "Статистика\n\n"
+            f"Алгоритм : BFS\n"
+            f"Посещено : {self.visited}\n"
+            f"Путь      : {self.path_length}\n"
+            f"Время     : {self.execution_time:.3f} сек"
         )
 
         self.status.config(text=text)
@@ -221,8 +222,6 @@ class PathfinderApp:
                 "Укажите старт и финиш."
             )
             return
-
-        start_time = time.perf_counter()
 
         queue = deque([self.start])
 
@@ -284,9 +283,7 @@ class PathfinderApp:
 
                 queue.append(neighbor)
 
-        end_time = time.perf_counter()
-
-        self.execution_time = end_time - start_time
+        self.execution_time = 0
 
         self.visited = len(visited)
 
