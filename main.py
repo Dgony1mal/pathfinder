@@ -120,7 +120,11 @@ class PathfinderApp:
         self.start = None
         self.finish = None
 
-        self.status.config(text="Карта очищена")
+        self.visited = 0
+        self.path_length = 0
+        self.execution_time = 0
+
+        self.update_status()
 
         self.draw_grid()
 
@@ -218,6 +222,17 @@ class PathfinderApp:
 
             current = queue.popleft()
 
+            row, col = current
+
+            if self.grid[row][col] == 0:
+                self.grid[row][col] = 4
+
+            self.draw_grid()
+
+            self.root.update()
+
+            self.root.after(20)
+
             if current == self.finish:
                 found = True
                 break
@@ -280,7 +295,7 @@ class PathfinderApp:
 
             row, col = current
 
-            if self.grid[row][col] == 0:
+            if self.grid[row][col] != 2 and self.grid[row][col] != 3:
                 self.grid[row][col] = 5
 
             current = parents[current]
