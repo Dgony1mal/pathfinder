@@ -1,19 +1,51 @@
 from tkinter import filedialog
 
+def write_map(filename, grid):
+
+    with open(filename, "w", encoding="utf-8") as file:
+
+        for row in grid:
+            file.write(" ".join(map(str, row)) + "\n")
+
+def read_map(filename):
+
+    with open(filename, "r", encoding="utf-8") as file:
+
+        rows = []
+
+        for line in file:
+            rows.append(list(map(int, line.split())))
+
+    return rows
+
+def write_result(filename, app):
+
+    with open(filename, "w", encoding="utf-8") as file:
+
+        file.write("Результат поиска пути\n\n")
+
+        file.write(f"Алгоритм: {app.current_algorithm}\n")
+        file.write(f"Посещено вершин: {app.visited}\n")
+        file.write(f"Длина пути: {app.path_length}\n")
+        file.write(f"Время: {app.execution_time:.3f} сек\n\n")
+
+        file.write("Карта:\n")
+
+        for row in app.grid:
+            file.write(" ".join(map(str, row)) + "\n")
+
 def save_map(app):
+
     filename = filedialog.asksaveasfilename(
         defaultextension=".txt",
         filetypes=[("Text files", "*.txt")]
     )
 
-    if not filename:
-        return
-
-    with open(filename, "w", encoding="utf-8") as file:
-        for row in app.grid:
-            file.write(" ".join(map(str, row)) + "\n")
+    if filename:
+        write_map(filename, app.grid)
 
 def load_map(app):
+
     filename = filedialog.askopenfilename(
         filetypes=[("Text files", "*.txt")]
     )
@@ -21,17 +53,14 @@ def load_map(app):
     if not filename:
         return
 
-    with open(filename, "r", encoding="utf-8") as file:
-        rows = file.readlines()
+    rows = read_map(filename)
 
     app.start = None
     app.finish = None
 
-    for r, line in enumerate(rows):
+    for r, row in enumerate(rows):
 
-        values = list(map(int, line.split()))
-
-        for c, value in enumerate(values):
+        for c, value in enumerate(row):
 
             app.grid[r][c] = value
 
@@ -52,24 +81,11 @@ def load_map(app):
     app.draw_grid()
 
 def save_result(app):
+
     filename = filedialog.asksaveasfilename(
         defaultextension=".txt",
         filetypes=[("Text files", "*.txt")]
     )
 
-    if not filename:
-        return
-
-    with open(filename, "w", encoding="utf-8") as file:
-
-        file.write("Результат поиска пути\n\n")
-
-        file.write(f"Алгоритм: {app.current_algorithm}\n")
-        file.write(f"Посещено вершин: {app.visited}\n")
-        file.write(f"Длина пути: {app.path_length}\n")
-        file.write(f"Время: {app.execution_time:.3f} сек\n\n")
-
-        file.write("Карта:\n")
-
-        for row in app.grid:
-            file.write(" ".join(map(str, row)) + "\n")
+    if filename:
+        write_result(filename, app)
