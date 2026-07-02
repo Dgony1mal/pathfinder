@@ -1,4 +1,5 @@
 import tkinter as tk
+from file_manager import save_map, load_map, save_result
 from tkinter import messagebox
 from collections import deque
 import time
@@ -20,6 +21,8 @@ class PathfinderApp:
 
         self.start = None
         self.finish = None
+
+        self.search_running = False
 
         self.visited = 0
         self.path_length = 0
@@ -103,6 +106,18 @@ class PathfinderApp:
                   command=self.clear_grid,
                   width=10).pack(side=tk.LEFT, padx=2)
 
+        tk.Button(frame, text="Открыть",
+                  command=lambda: load_map(self),
+                  width=10).pack(side=tk.LEFT, padx=2)
+
+        tk.Button(frame, text="Сохранить",
+                  command=lambda: save_map(self),
+                  width=10).pack(side=tk.LEFT, padx=2)
+
+        tk.Button(frame, text="Экспорт",
+                  command=lambda: save_result(self),
+                  width=10).pack(side=tk.LEFT, padx=2)
+
         tk.Button(frame, text="BFS",
                   command=self.run_bfs,
                   width=10).pack(side=tk.LEFT, padx=2)
@@ -131,6 +146,8 @@ class PathfinderApp:
 
         self.start = None
         self.finish = None
+
+        self.search_running = False
 
         self.visited = 0
         self.path_length = 0
@@ -212,6 +229,23 @@ class PathfinderApp:
 
         self.status.config(text=text)
 
+    def reset_search(self):
+        """Очистить результаты предыдущего поиска."""
+
+        for r in range(ROWS):
+            for c in range(COLS):
+                if self.grid[r][c] in (VISITED, PATH):
+                    self.grid[r][c] = EMPTY
+
+        self.visited = 0
+        self.path_length = 0
+        self.execution_time = 0
+
+        self.queue_box.delete(0, tk.END)
+
+        self.update_status()
+        self.draw_grid()
+
     def run_bfs(self):
 
         if self.start is None or self.finish is None:
@@ -220,6 +254,13 @@ class PathfinderApp:
                 "Укажите старт и финиш."
             )
             return
+
+        if self.search_running:
+            return
+
+        self.search_running = True
+
+        self.reset_search()
 
         bfs(self)
 

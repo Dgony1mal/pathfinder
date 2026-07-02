@@ -72,4 +72,6 @@ def bfs(app):
 
     app.queue_box.delete(0, app.queue_box.size())
 
+    app.search_running = False
+
     return found
