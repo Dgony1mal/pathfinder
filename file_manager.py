@@ -64,7 +64,7 @@ def save_result(app):
 
         file.write("Результат поиска пути\n\n")
 
-        file.write(f"Алгоритм: BFS\n")
+        file.write(f"Алгоритм: {app.current_algorithm}\n")
         file.write(f"Посещено вершин: {app.visited}\n")
         file.write(f"Длина пути: {app.path_length}\n")
         file.write(f"Время: {app.execution_time:.3f} сек\n\n")

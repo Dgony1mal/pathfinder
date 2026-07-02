@@ -6,7 +6,7 @@ import time
 
 from constants import *
 
-from algorithms import bfs
+from algorithms import bfs, dfs, astar
 
 class PathfinderApp:
 
@@ -27,6 +27,14 @@ class PathfinderApp:
         self.visited = 0
         self.path_length = 0
         self.execution_time = 0
+
+        self.current_algorithm = "-"
+
+        self.results = {
+            "BFS": "-",
+            "DFS": "-",
+            "A*": "-"
+        }
 
         self.create_toolbar()
 
@@ -65,11 +73,13 @@ class PathfinderApp:
 
         self.status.pack(anchor="w")
 
-        tk.Label(
+        self.queue_title = tk.Label(
             self.info,
-            text="Очередь BFS",
+            text="Структура данных",
             font=("Arial", 10, "bold")
-        ).pack(anchor="w", pady=(15, 5))
+        )
+        
+        self.queue_title.pack(anchor="w", pady=(15, 5))
 
         self.queue_box = tk.Listbox(
             self.info,
@@ -78,6 +88,24 @@ class PathfinderApp:
         )
 
         self.queue_box.pack(anchor="w")
+
+        tk.Label(
+            self.info,
+            text="Сравнение алгоритмов",
+            font=("Arial", 10, "bold")
+        ).pack(anchor="w", pady=(15, 5))
+
+        self.compare = tk.Label(
+            self.info,
+            justify="left",
+            anchor="nw",
+            width=24,
+            font=("Consolas", 10)
+        )
+
+        self.compare.pack(anchor="w")
+
+        self.update_compare()
 
         self.update_status()
 
@@ -123,24 +151,60 @@ class PathfinderApp:
                   width=10).pack(side=tk.LEFT, padx=2)
 
         tk.Button(frame, text="DFS",
-                  command=lambda: self.not_ready("DFS"),
+                  command=self.run_dfs,
                   width=10).pack(side=tk.LEFT, padx=2)
 
         tk.Button(frame, text="A*",
-                  command=lambda: self.not_ready("A*"),
+                  command=self.run_astar,
                   width=10).pack(side=tk.LEFT, padx=2)
 
-    def not_ready(self, name):
+    def run_dfs(self):
 
-        messagebox.showinfo(
-            "Информация",
-            f"Алгоритм {name} будет реализован на следующем этапе."
-        )
+        if self.start is None or self.finish is None:
+            messagebox.showwarning(
+                "Ошибка",
+                "Укажите старт и финиш."
+            )
+            return
+
+        self.reset_search()
+
+        self.search_running = True
+
+        self.current_algorithm = "DFS"
+
+        self.queue_title.config(text="Стек DFS")
+
+        dfs(self)
+
+    def run_astar(self):
+
+        if self.start is None or self.finish is None:
+            messagebox.showwarning(
+                "Ошибка",
+                "Укажите старт и финиш."
+            )
+            return
+
+        if self.search_running:
+            return
+
+        self.reset_search()
+
+        self.search_running = True
+
+        self.current_algorithm = "A*"
+
+        self.queue_title.config(text="Приоритетная очередь А*")
+
+        astar(self)
 
     def set_mode(self, mode):
         self.mode = mode
 
     def clear_grid(self):
+
+        self.search_running = False
 
         self.grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]
 
@@ -152,6 +216,8 @@ class PathfinderApp:
         self.visited = 0
         self.path_length = 0
         self.execution_time = 0
+
+        self.current_algorithm = "-"
 
         self.update_status()
 
@@ -221,13 +287,24 @@ class PathfinderApp:
 
         text = (
             "Статистика\n\n"
-            f"Алгоритм : BFS\n"
+            f"Алгоритм : {self.current_algorithm}\n"
             f"Посещено : {self.visited}\n"
             f"Путь      : {self.path_length}\n"
             f"Время     : {self.execution_time:.3f} сек"
         )
 
         self.status.config(text=text)
+
+    def update_compare(self):
+
+        text = (
+            "Алгоритм   Путь\n\n"
+            f"BFS        {self.results['BFS']}\n"
+            f"DFS        {self.results['DFS']}\n"
+            f"A*         {self.results['A*']}"
+        )
+
+        self.compare.config(text=text)
 
     def reset_search(self):
         """Очистить результаты предыдущего поиска."""
@@ -240,6 +317,10 @@ class PathfinderApp:
         self.visited = 0
         self.path_length = 0
         self.execution_time = 0
+
+        self.current_algorithm = "-"
+
+        self.queue_title.config(text="Структура данных")
 
         self.queue_box.delete(0, tk.END)
 
@@ -258,9 +339,13 @@ class PathfinderApp:
         if self.search_running:
             return
 
+        self.reset_search()
+
         self.search_running = True
 
-        self.reset_search()
+        self.current_algorithm = "BFS"
+
+        self.queue_title.config(text="Очередь BFS")
 
         bfs(self)
 
