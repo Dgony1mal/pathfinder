@@ -3,25 +3,16 @@ from tkinter import messagebox
 from collections import deque
 import time
 
-ROWS = 30
-COLS = 30
-CELL_SIZE = 20
+from constants import *
 
-COLORS = {
-    0: "white",
-    1: "black",
-    2: "green",
-    3: "red",
-    4: "#6ec6ff",      # посещённая вершина
-    5: "yellow"        # найденный путь
-}
+from algorithms import bfs
 
 class PathfinderApp:
 
     def __init__(self):
 
         self.root = tk.Tk()
-        self.root.title("Визуализатор алгоритмов поиска пути")
+        self.root.title("Поиск пути | Бородихин А.Д. | БИС-24-3")
 
         self.mode = "wall"
 
@@ -50,6 +41,13 @@ class PathfinderApp:
 
         self.info = tk.Frame(body)
         self.info.pack(side=tk.LEFT, padx=15, anchor="n")
+
+        tk.Label(
+            self.info,
+            text="Бородихин А. Д.\nБИС-24-3",
+            font=("Arial", 11, "bold"),
+            fg="navy"
+        ).pack(pady=(0, 15))
 
         tk.Label(self.info, text="Статистика", font=("Arial", 12, "bold")).pack()
 
@@ -223,82 +221,7 @@ class PathfinderApp:
             )
             return
 
-        queue = deque([self.start])
-
-        parents = {}
-
-        visited = {self.start}
-
-        found = False
-
-        while queue:
-
-            current = queue.popleft()
-
-            row, col = current
-
-            if self.grid[row][col] == 0:
-                self.grid[row][col] = 4
-
-            self.draw_grid()
-
-            self.update_queue(queue)
-
-            self.root.update()
-
-            self.root.after(20)
-
-            if current == self.finish:
-                found = True
-                break
-
-            row, col = current
-
-            directions = [
-                (-1, 0),
-                (1, 0),
-                (0, -1),
-                (0, 1)
-            ]
-
-            for dr, dc in directions:
-
-                nr = row + dr
-                nc = col + dc
-
-                if not (0 <= nr < ROWS and 0 <= nc < COLS):
-                    continue
-
-                if self.grid[nr][nc] == 1:
-                    continue
-
-                neighbor = (nr, nc)
-
-                if neighbor in visited:
-                    continue
-
-                visited.add(neighbor)
-
-                parents[neighbor] = current
-
-                queue.append(neighbor)
-
-        self.execution_time = 0
-
-        self.visited = len(visited)
-
-        if found:
-            self.restore_path(parents)
-
-        else:
-            messagebox.showinfo(
-                "BFS",
-                "Путь не найден."
-            )
-
-        self.update_status()
-
-        self.queue_box.delete(0, tk.END)
+        bfs(self)
 
     def restore_path(self, parents):
 
