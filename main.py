@@ -114,49 +114,48 @@ class PathfinderApp:
         self.draw_grid()
 
     def create_toolbar(self):
-
+        # Основной фрейм для всей панели
         frame = tk.Frame(self.root)
         frame.pack(pady=10)
 
-        tk.Button(frame, text="Стены",
-                  command=lambda: self.set_mode("wall"),
-                  width=10).pack(side=tk.LEFT, padx=2)
+        # ---------- Верхний ряд: режимы и файловые операции ----------
+        top_frame = tk.Frame(frame)
+        top_frame.pack()
 
-        tk.Button(frame, text="Старт",
-                  command=lambda: self.set_mode("start"),
-                  width=10).pack(side=tk.LEFT, padx=2)
+        buttons_top = [
+            ("Стены", "wall"),
+            ("Старт", "start"),
+            ("Финиш", "finish"),
+            ("Очистить", "clear"),
+            ("Открыть", "open"),
+            ("Сохранить", "save"),
+            ("Экспорт", "export")
+        ]
 
-        tk.Button(frame, text="Финиш",
-                  command=lambda: self.set_mode("finish"),
-                  width=10).pack(side=tk.LEFT, padx=2)
+        for text, cmd in buttons_top:
+            if cmd == "wall":
+                btn = tk.Button(top_frame, text=text, command=lambda: self.set_mode("wall"), width=10)
+            elif cmd == "start":
+                btn = tk.Button(top_frame, text=text, command=lambda: self.set_mode("start"), width=10)
+            elif cmd == "finish":
+                btn = tk.Button(top_frame, text=text, command=lambda: self.set_mode("finish"), width=10)
+            elif cmd == "clear":
+                btn = tk.Button(top_frame, text=text, command=self.clear_grid, width=10)
+            elif cmd == "open":
+                btn = tk.Button(top_frame, text=text, command=lambda: load_map(self), width=10)
+            elif cmd == "save":
+                btn = tk.Button(top_frame, text=text, command=lambda: save_map(self), width=10)
+            elif cmd == "export":
+                btn = tk.Button(top_frame, text=text, command=lambda: save_result(self), width=10)
+            btn.pack(side=tk.LEFT, padx=2)
 
-        tk.Button(frame, text="Очистить",
-                  command=self.clear_grid,
-                  width=10).pack(side=tk.LEFT, padx=2)
+        # ---------- Нижний ряд: алгоритмы ----------
+        bottom_frame = tk.Frame(frame)
+        bottom_frame.pack(pady=(5, 0))
 
-        tk.Button(frame, text="Открыть",
-                  command=lambda: load_map(self),
-                  width=10).pack(side=tk.LEFT, padx=2)
-
-        tk.Button(frame, text="Сохранить",
-                  command=lambda: save_map(self),
-                  width=10).pack(side=tk.LEFT, padx=2)
-
-        tk.Button(frame, text="Экспорт",
-                  command=lambda: save_result(self),
-                  width=10).pack(side=tk.LEFT, padx=2)
-
-        tk.Button(frame, text="BFS",
-                  command=self.run_bfs,
-                  width=10).pack(side=tk.LEFT, padx=2)
-
-        tk.Button(frame, text="DFS",
-                  command=self.run_dfs,
-                  width=10).pack(side=tk.LEFT, padx=2)
-
-        tk.Button(frame, text="A*",
-                  command=self.run_astar,
-                  width=10).pack(side=tk.LEFT, padx=2)
+        tk.Button(bottom_frame, text="BFS", command=self.run_bfs, width=10).pack(side=tk.LEFT, padx=2)
+        tk.Button(bottom_frame, text="DFS", command=self.run_dfs, width=10).pack(side=tk.LEFT, padx=2)
+        tk.Button(bottom_frame, text="A*", command=self.run_astar, width=10).pack(side=tk.LEFT, padx=2)
 
     def run_dfs(self):
 
