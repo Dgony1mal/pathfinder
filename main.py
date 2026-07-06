@@ -5,7 +5,6 @@ from collections import deque
 import time
 
 from constants import *
-
 from algorithms import bfs, dfs, astar
 
 class PathfinderApp:
@@ -30,10 +29,11 @@ class PathfinderApp:
 
         self.current_algorithm = "-"
 
+        # ИЗМЕНЕНО: теперь храним словарь с путём и временем для каждого алгоритма
         self.results = {
-            "BFS": "-",
-            "DFS": "-",
-            "A*": "-"
+            "BFS": {"path": "-", "time": "-"},
+            "DFS": {"path": "-", "time": "-"},
+            "A*": {"path": "-", "time": "-"}
         }
 
         self.create_toolbar()
@@ -99,7 +99,7 @@ class PathfinderApp:
             self.info,
             justify="left",
             anchor="nw",
-            width=24,
+            width=35,
             font=("Consolas", 10)
         )
 
@@ -174,7 +174,7 @@ class PathfinderApp:
 
         self.queue_title.config(text="Стек DFS")
 
-        dfs(self)
+        dfs(self)   # внутри теперь замеряется время и обновляется статус
 
     def run_astar(self):
 
@@ -196,7 +196,7 @@ class PathfinderApp:
 
         self.queue_title.config(text="Приоритетная очередь А*")
 
-        astar(self)
+        astar(self)   # внутри теперь замеряется время и обновляется статус
 
     def set_mode(self, mode):
         self.mode = mode
@@ -218,8 +218,15 @@ class PathfinderApp:
 
         self.current_algorithm = "-"
 
-        self.update_status()
+        # Сброс результатов сравнения
+        self.results = {
+            "BFS": {"path": "-", "time": "-"},
+            "DFS": {"path": "-", "time": "-"},
+            "A*": {"path": "-", "time": "-"}
+        }
 
+        self.update_status()
+        self.update_compare()
         self.draw_grid()
 
     def left_click(self, event):
@@ -295,14 +302,13 @@ class PathfinderApp:
         self.status.config(text=text)
 
     def update_compare(self):
-
+        # ИЗМЕНЕНО: теперь отображаем и путь, и время
         text = (
-            "Алгоритм   Путь\n\n"
-            f"BFS        {self.results['BFS']}\n"
-            f"DFS        {self.results['DFS']}\n"
-            f"A*         {self.results['A*']}"
+            "Алгоритм   Путь     Время(с)\n\n"
+            f"BFS        {self.results['BFS']['path']:>3}      {self.results['BFS']['time']:>6}\n"
+            f"DFS        {self.results['DFS']['path']:>3}      {self.results['DFS']['time']:>6}\n"
+            f"A*         {self.results['A*']['path']:>3}      {self.results['A*']['time']:>6}"
         )
-
         self.compare.config(text=text)
 
     def reset_search(self):
@@ -346,7 +352,7 @@ class PathfinderApp:
 
         self.queue_title.config(text="Очередь BFS")
 
-        bfs(self)
+        bfs(self)   # внутри теперь замеряется время и обновляется статус
 
     def restore_path(self, parents):
 
@@ -383,4 +389,4 @@ class PathfinderApp:
         self.root.mainloop()
 
 if __name__ == "__main__":
-    PathfinderApp().run()        
+    PathfinderApp().run()
